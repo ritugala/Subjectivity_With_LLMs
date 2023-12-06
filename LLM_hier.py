@@ -7,7 +7,7 @@ client = OpenAI()
 
 system_level_prompt = """Your objective is to capture all the possible interpretations for a given
 response. You will be given responses from witness testimonials
-in U.S. congressional hearings. You will play the role of a judge where you have to predict the intent of a given response given a question. To make this simpler, we first predict the entire range conversation acts possible, which ranges from ("answer", "can't answer", "shift"). You are also provided with annotator sentiments, to serve as a proxy for annotator bias.  Respond with a tuple, with the range of acts, and their explanations. 
+in U.S. congressional hearings. You will play the role of a judge where you have to predict the intent of a given response given a question. To make this simpler, we first predict the entire range conversation acts possible, which ranges from ("answer", "can't answer", "shift"). Six-Seven annotators have already labeled this task, which represent the ground truth. You are provided with the sentiments of these annotators, to serve as a proxy for annotator bias. This may help you capture subjectivity. Respond with a tuple, with the range of acts, and their explanations. 
 
 Consider the following example:
 Question: "So do you adjust your algorithms to prevent individuals interested in violence from being connected with like-minded individuals?"
@@ -44,8 +44,7 @@ Response: "Sorry. Could you repeat that?"
 Act: "Can't Answer"
 
 The range of intents and their explanations are 
-(["honest", "lying"], "A cynical annotator interprets the clarification question as lying
-in order to stall vs. an optimistic annotator might view it as being honest")
+(["honest", "lying"], "A cynical annotator interprets the clarification question as lying in order to stall vs. an optimistic annotator might view it as being honest")
 
 Having seen this example predict for the following:
 Question: "{question}"
@@ -67,67 +66,73 @@ if __name__ == '__main__':
     # TODO: combine train and dev since we are doing 0 shot anyway
     data = pd.read_csv("data/train.tsv", delimiter="\t")
 
-    data = data[:5]
+    data = data[:100]
     target_labels_fine = []
     predicted_labels_fine = []
     target_labels_coarse = []
     predicted_labels_coarse = []
     for idx,example in data.iterrows():
+        try:
         
-        print("Currently processing.. ", idx)
-        question = example["q_text_last_question"]
-        response = example["r_text"]
-        labels = example["gold_labels_binary"]
-        sentiments = example["gold_sentiments"]
-        num_annotators = len(sentiments)
-        messages=[
-            {"role": "system", "content": system_level_prompt},
-            {"role": "user", "content": user_level_act_prompt.format(question=question, response=response, num_annotators=num_annotators, sentiments=sentiments )}
-        ]
-        completion = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=messages
-        )
-        response = completion.choices[0].message.content
-        acts, acts_explanation = eval(response)
-        predicted_intents_all = []
-        intent_explanations = ""
-        for act in acts:
-            messages.append(
-                {"role": "user", "content": user_level_intent_prompt.format(question=question, response=response, act=act)}
-        
-            )
+            print("Currently processing.. ", idx)
+            question = example["q_text_last_question"]
+            response = example["r_text"]
+            labels = example["gold_labels_binary"]
+            sentiments = example["gold_sentiments"]
+            num_annotators = len(sentiments)
+            messages=[
+                {"role": "system", "content": system_level_prompt},
+                {"role": "user", "content": user_level_act_prompt.format(question=question, response=response, num_annotators=num_annotators, sentiments=sentiments )}
+            ]
             completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=messages
+            model="gpt-3.5-turbo",
+            messages=messages
             )
+            breakpoint()
             response = completion.choices[0].message.content
-            predicted_intents, intent_explanation = eval(response)
-            predicted_intents_all += predicted_intents
-            intent_explanations += "; "+intent_explanation
-        predicted_labels = create_predicted_labels(predicted_intents_all)
-        labels = int_to_str_label(labels)
+            acts, acts_explanation = eval(response)
+            predicted_intents_all = []
+            intent_explanations = ""
+            for act in acts:
+                messages.append(
+                    {"role": "user", "content": user_level_intent_prompt.format(question=question, response=response, act=act)}
+            
+                )
+                completion = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=messages
+                )
+                response = completion.choices[0].message.content
+                predicted_intents, intent_explanation = eval(response)
+                predicted_intents_all += predicted_intents
+                intent_explanations += "; "+intent_explanation
+            predicted_labels = create_predicted_labels(predicted_intents_all)
+            labels = int_to_str_label(labels)
 
-        df= df.append({
-            "Index": example["qa_index_digits"],
-            "Question": question,
-            "Response": response,
-            "Labels":labels, 
-            "Predicted_Labels": predicted_labels,
-            "Predicted_Acts": acts, 
-            "Predicted_Act_Explanation":acts_explanation, 
-            "Predicted_Intent":predicted_intents_all, 
-            "Predicted_Intent_Explanation":intent_explanations
-        }, ignore_index=True)
 
-        target_labels_fine.append(labels)
-        predicted_labels_fine.append(predicted_labels)
+            df= df.append({
+                "Index": example["qa_index_digits"],
+                "Question": question,
+                "Response": example["r_text"],
+                "Labels":labels, 
+                "Predicted_Labels": predicted_labels,
+                "Predicted_Acts": acts, 
+                "Predicted_Act_Explanation":acts_explanation, 
+                "Predicted_Intent":predicted_intents_all, 
+                "Predicted_Intent_Explanation":intent_explanations
+            }, ignore_index=True)
 
-        target_labels_coarse.append(create_acts_labels(labels))
-        predicted_labels_coarse.append(create_acts_labels(predicted_labels))
+            target_labels_fine.append(labels)
+            predicted_labels_fine.append(predicted_labels)
+
+            target_labels_coarse.append(create_acts_labels(labels))
+            predicted_labels_coarse.append(create_acts_labels(predicted_labels))
+        except Exception as e:
+            print("LLM probably hallucinated.. ", e)
+            print(response)
+            continue
 
     df.to_csv("predictions/llm_predictions_hier.csv")
-    breakpoint()
 
     metrics_fine = get_metrics(target_labels_fine, predicted_labels_fine)
     with open('metrics/hier_metrics_fine.json', 'w') as file:

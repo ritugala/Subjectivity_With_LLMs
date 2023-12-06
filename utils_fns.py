@@ -10,6 +10,17 @@ def create_predicted_labels(predicted_intents, is_hier=True):
         predicted_labels[mapping[predicted_intent]] = '1'
     return ''.join(predicted_labels)
 
+def create_predicted_label_leading_q(blah:dict):
+    vals = blah.values()
+    ans =''
+    for val in vals:
+        if val.lower()=='yes':
+            ans+='1'
+        else:
+            ans+='0'
+    return ans
+
+
 def int_to_str_label(true_labels):
     temp = str(true_labels)
     temp = '0'*(6-len(temp)) + temp

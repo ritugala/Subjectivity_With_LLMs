@@ -1,0 +1,22 @@
+Things to ask Eesha's boyfriend:
+One hypothesis why few shot prompting doesn't work well as a classifier is because the subjectivity captured is specific to these set of annotators - although the goal might be to "capture the entire extent of subjectivity", in reality is just to these set of annotators.
+There is also a decent assumption that some of this response label might be noise - since there is no ground truth. We as authors might look at 
+
+
+1. We're worried about some of the response labels being noise - especially with sometehign like subjecitvity. Is there any clean way to verify this? The original authors look at annotator sentiment(towards a response) correlation with labels which suggests weak correlation at best. They also don't give a conclusive answer. 
+We are more interested in this because when we try to compare a few shot approach of LLMs (with explanation), sometimes the explanations do look reasonable enough. 
+
+
+Providing full length of questions 
+
+Number of um/uh not much because of respondents being top level politicians
+
+
+
+Experiments:
+1. Using full length of the questions (initially we are just using last)
+2. Asking as a rubric, rather than just classification labels
+3. Using coarse grained sentiments rather than fine grained sentiments
+4. Increasing temperature!! (?)
+
+

@@ -1,0 +1,48 @@
+{
+    "precision_macro": 0.25,
+    "recall_macro": 0.5,
+    "f1_macro": 0.3333333333333333,
+    "accuracy": 0.5,
+    "hamming_loss": 0.5,
+    "precision_micro": 0.5,
+    "recall_micro": 0.5,
+    "f1_micro": 0.5,
+    "precision_class": [
+        0.5,
+        0.0
+    ],
+    "recall_class": [
+        1.0,
+        0.0
+    ],
+    "f1_class": [
+        0.6666666666666666,
+        0.0
+    ],
+    "support_class": [
+        1,
+        1
+    ],
+    "confusion_matrix": [
+        [
+            [
+                0,
+                1
+            ],
+            [
+                0,
+                1
+            ]
+        ],
+        [
+            [
+                1,
+                0
+            ],
+            [
+                1,
+                0
+            ]
+        ]
+    ]
+}

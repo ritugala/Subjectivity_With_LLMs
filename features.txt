@@ -1,0 +1,39 @@
+Word Choice and Phrasing: Specific words or phrases may indicate the intent behind an answer, such as defensiveness, agreement, or evasion.
+
+Filler Words: Frequent use of fillers like "um," "uh," or "you know" might suggest hesitation or uncertainty.
+
+Stuttering: Repetition of words or parts of words can imply nervousness or a lack of preparation.
+
+Tone and Pitch Variations: Changes in tone or pitch can convey emotions like anger, frustration, or sincerity.
+
+Speech Rate: A rapid speech rate may suggest nervousness or an attempt to quickly move past a topic, while a slow rate might indicate careful consideration.
+
+Pauses and Silence: Long pauses or silence could indicate evasion, thinking time, or uncertainty.
+
+Directness of Response: Whether the answer directly addresses the question or diverts from the topic can indicate intent.
+
+Length and Complexity of Responses: Longer, more complex answers might indicate a desire to explain in detail or obfuscate, while shorter answers could suggest clarity or avoidance.
+
+Objective Features:
+1. Length
+2. Stuttering
+3. Filler Words
+
+Features on both questions and answer
+Objective 
+Prompt:
+1. Does the text contain filler words? Examples of filler words include but not limited to ("um", "uh", "you know" etc) 
+2. Does the text imply that the person talking is stuttering?
+3. Is the text concise?
+4. Is there repitition between the question and the answer?
+5. Does the text use pronouns like "we" or "us"?
+6. Does the text contain rambling?
+7. Does the text References to External Sources or Authorities
+8. Does the text use complicated terms/jargon?
+9. Does the text use sarcasm or rhetorical questions?
+
+
+Subjective:
+Does the prompt use evasive language with terms like (but not limited to) to the best of my knowledge" or "as far as I am aware" to avoid direct commitment
+Does the prompt use assertive language like (but not limited to) "definitely," "certainly," or "absolutely" to express confidence or conviction?
+

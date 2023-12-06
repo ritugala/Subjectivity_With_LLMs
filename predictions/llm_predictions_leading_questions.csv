@@ -1,0 +1,21 @@
+,Index,Question,Response,Labels,Predicted_Labels,Predicted_Intent,Predicted_Intent_Explanation
+0,11635230123,"My question is, given all those connections, is it likely that Donald Trump was fully aware and had every intent of working with Russia to help make sure that he could win the Presidency at all costs?","So let me say that this is a matter that's currently being handled by the House Select and the Senate Select Intelligence Committees, as I would rather not answer that specific question, other than just to tell you that Mr. Trump's desire to win would have him work with anyone.    And one other thing that I had said in my statement is that when it came to the Trump Tower Moscow project, it was worth hundreds of millions of dollars, and we never expected to win the election. So this was just business as usual.",000101,001001,"{'Does the answer satisfy the question and is it direct?': 'no', ' Does the answer satisfy the question but is the respondent overanswering?': 'no', 'Is the respondent attempting to shift and dodge the question, thus showing insincere intent?': 'yes', 'Is the respondent attempting to shift the question but correct it, thus showing sincere intent?': 'no', 'Is the respondent unable to answer the question and  If so does it seem like they are lying?': 'no', 'Is the respondent unable to answer the question and  If so does it seem like they are sincere?': 'yes'}",
+1,11637282057,"Right. So did you verbally counsel Ms. Conway, ``Hey, you're crossing a line, don't do that''?","I have never spoken to Ms. Conway. But the White House Counsel's Office gave her numerous trainings, in fact, some that our career staff sent over there, PowerPoints and other training materials on the Hatch Act, and specifically on using her official authority to influence an election, specifically on this violation.",100000,001001,"{'Does the answer satisfy the question and is it direct?': 'no', 'Does the answer satisfy the question but is the respondent overanswering?': 'no', 'Is the respondent attempting to shift and dodge the question, thus showing insincere intent?': 'yes', 'Is the respondent attempting to shift the question but correct it, thus showing sincere intent?': 'no', 'Is the respondent unable to answer the question and if so does it seem like they are lying?': 'no', 'Is the respondent unable to answer the question and if so does it seem like they are sincere?': 'yes'}","Analysis:
+
+The question asks if the witness verbally counseled Ms. Conway about crossing a line. The witness responds by stating that they have never spoken to Ms. Conway, but that the White House Counsel's Office provided her with trainings on the Hatch Act and specifically on using her official authority to influence an election.
+
+Possible interpretations of the response:
+1. The witness did not verbally counsel Ms. Conway themselves, but the White House Counsel's Office did provide her with trainings on the Hatch Act.
+2. The witness is denying any direct communication with Ms. Conway, but is acknowledging that trainings were provided to her by the White House Counsel's Office.
+
+Now let's answer the questions:
+
+1. Does the answer satisfy the question and is it direct? - No, the answer does not directly state whether the witness verbally counseled Ms. Conway.
+2. Does the answer satisfy the question but is the respondent overanswering? - No, the answer does not provide excessive information beyond what is necessary.
+3. Is the respondent attempting to shift and dodge the question, thus showing insincere intent? - Yes, the respondent is not directly answering the question and instead focuses on the trainings provided by the White House Counsel's Office.
+4. Is the respondent attempting to shift the question but correct it, thus showing sincere intent? - No, the respondent does not correct the question but rather provides information related to it.
+5. Is the respondent unable to answer the question and if so does it seem like they are lying? - No, the respondent does not seem unable to answer the question and there is no indication of lying.
+6. Is the respondent unable to answer the question and if so does it seem like they are sincere? - Yes, the respondent is unable to answer the question directly but appears sincere in providing information related to it.
+
+Output:
+"
