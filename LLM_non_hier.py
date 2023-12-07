@@ -20,7 +20,7 @@ Sentiments: ('somewhatNegative', 'somewhatNegative', 'somewhatNegative', 'somewh
 
 
 The range of intents and their explanations are 
-(["honest", "lying"], "A cynical annotator interprets the clarification question as lying in order to stall vs. an optimistic annotator might view it as being honest")
+(["cant_answer_lying", "cant_answer_sincere"], "A cynical annotator interprets the clarification question as lying in order to stall vs. an optimistic annotator might view it as being honest")
 
 ---
  """

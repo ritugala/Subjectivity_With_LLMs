@@ -20,13 +20,14 @@ COT= "\nProvide analysis for this question/answer pair to determine the intent o
 
 leading_questions = """
 
-Now provide "yes"/"no" answers to the following questions considering the various interpretations. Return yes if any of those interpretations satisfy a below question. REturn a json dict with yes/no for the same. eg output : {
-"Does the answer satisfy the question and is it direct?": "no",
-" Does the answer satisfy the question but is the respondent overanswering?": "no",
-"Is the respondent attempting to shift and dodge the question, thus showing insincere intent?: "yes",
-"Is the respondent attempting to shift the question but correct it, thus showing sincere intent?": "no",
-"Is the respondent unable to answer the question and  If so does it seem like they are lying?": "no",
-"Is the respondent unable to answer the question and  If so does it seem like they are sincere?": "yes"
+Now provide "yes"/"no" answers to the following questions considering the various interpretations. Return yes if any of those interpretations satisfy a below question. Return a json dict with yes/no for the same. eg output : 
+{
+    "Does the answer satisfy the question and is it direct?": "no",
+    " Does the answer satisfy the question but is the respondent overanswering?": "no",
+    "Is the respondent attempting to shift and dodge the question, thus showing insincere intent?: "yes",
+    "Is the respondent attempting to shift the question but correct it, thus showing sincere intent?": "no",
+    "Is the respondent unable to answer the question and  If so does it seem like they are lying?": "no",
+    "Is the respondent unable to answer the question and  If so does it seem like they are sincere?": "yes"
 }
 1. Does the answer satisfy the question and is it direct?
 2. Does the answer satisfy the question but is the respondent overanswering?
