@@ -3,63 +3,81 @@ import pandas as pd
 import numpy as np
 import json
 import sys
+import ast
 # LOL sorry i dont know how to fix this better
-sys.path.append('C:\\Users\\Ritu\\Downloads\\gold_cv_dev_data\\CongressionalHearing\\llms_subjective')
+sys.path.append('/Users/meghanaarajeev/Documents/ANLP/Subjectivity_With_LLMs')
 from utils_fns import create_predicted_label_leading_q, int_to_str_label, create_acts_labels, get_metrics
 import numpy as np
 client = OpenAI()
+#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
 #@meghana: This is code from leading_questions.py I dont personally think you should mimic the "consider all interpreations part", considering we want these to be as objective as possible (since these features are not meant to be subjective). However use your best judgement. Hehe. 
 system_level_prompt = """You will be given question-response pairs from witness testimonials in U.S. congressional hearings. Your job is to pick up on cues of the response which will later be used for determining intent of the response. To aid with this, you will be asked a list of questions. Please answer this as yes/no. """
 
-user_level_act_prompt = """ 
+user_level_act_prompt = """ Analyze the following response and question thoroughly. 
 Question: "{question}"
 Response: "{response}"
+  
+"""
+
+feature_extraction_prompt = """
+Now answer the following questions based on your objective interpretation of the response to the question.
+
+Questions:
+1. Does the text contain filler words (e.g., "um", "uh", "you know")? 
+2. Does the text imply stuttering?
+3. Is the text concise?
+4. Is there repetition between the question and the answer?
+5. Does the text use pronouns like "we" or "us"?
+6. Does the text contain rambling?
+7. Does the text reference external sources or authorities?
+8. Does the text use complicated terms/jargon?
+9. Does the text use sarcasm? 
+10. Does the text contain rhetorical questions?
+11. Does the response directly address and answer the question asked, or does it divert from the topic?
+12. Is the response logically structured and coherent without contradictions?
+13. Does the response use hedging language(e.g. 'it seems', 'possibly', 'might be', 'could be', or similar expressions that indicate uncertainty or non-commitment.)?
+14. Does the prompt use assertive language like (but not limited to) "definitely," "certainly," or "absolutely" to express confidence or conviction?
+15. Does the prompt use evasive language with terms like (but not limited to) to the best of my knowledge" or "as far as I am aware" to avoid direct commitment?
  
-"""
 
-COT= "\nProvide analysis for this question/answer pair to determine the intent of the answer. Consider ALL possible reasonable interpretations possible.\n"
-
-leading_questions = """
-
-Now provide "yes"/"no" answers to the following questions considering the various interpretations. Return yes if any of those interpretations satisfy a below question. REturn a json dict with yes/no for the same. eg output : {
-"Does the answer satisfy the question and is it direct?": "no",
-" Does the answer satisfy the question but is the respondent overanswering?": "no",
-"Is the respondent attempting to shift and dodge the question, thus showing insincere intent?: "yes",
-"Is the respondent attempting to shift the question but correct it, thus showing sincere intent?": "no",
-"Is the respondent unable to answer the question and  If so does it seem like they are lying?": "no",
-"Is the respondent unable to answer the question and  If so does it seem like they are sincere?": "yes"
+Provide answers in the following JSON dict format with yes or no for each question. eg output: 
+{
+ "Filler Words": "yes/no",
+ "Stuttering": "yes/no",
+ "Concise": "yes/no",
+ "Repetition": "yes/no",
+ "Pronouns": "yes/no",
+ "Rambling": "yes/no",
+ "External References": "yes/no",
+ "Complicated Terms": "yes/no",
+ "Sarcasm": "yes/no",
+ "Rhetorical Questions": "yes/no",
+ "Direct Answer": "yes/no",
+ "Logical Coherence": "yes/no",
+ "Hedging Language": "yes/no",
+ "Assertive Language": "yes/no",
+ "Evasive Language": "yes/no"
 }
-1. Does the answer satisfy the question and is it direct?
-2. Does the answer satisfy the question but is the respondent overanswering?
-3. Is the respondent attempting to shift and dodge the question, thus showing insincere intent?
-4. Is the respondent attempting to shift the question but correct it, thus showing sincere intent?
-5. Is the respondent unable to answer the question and  If so does it seem like they are lying?
-6. Is the respondent unable to answer the question and  If so does it seem like they are sincere?
-
 """
 
-
-def build_input(question, response,has_cot=True):
+def build_input(question, response):
     fin = ""
     fin += user_level_act_prompt.format(question=question, response=response)
-    if has_cot:
-        fin += COT
-    fin += leading_questions
+    fin += feature_extraction_prompt
     return fin
     
 def parse_response(response):
     ind = response.index('{')
-    expln = response[:ind]
-    intents = eval(response[ind:])
-    return intents, expln
-
+    # expln = response[:ind]
+    features = eval(response[ind:])
+    return features
 
 if __name__ == '__main__':
-    df = pd.DataFrame(columns=["Index","Question", "Response", "Labels", "Predicted_Labels", "Predicted_Intent", "Predicted_Intent_Explanation"])
+    df = pd.DataFrame(columns=["Index", "Question", "Response", "Labels", "Predicted_Labels", "Features", "Filler Words", "Stuttering", "Concise", "Repetition", "Pronouns", "Rambling", "External References", "Complicated Terms", "Sarcasm", "Rhetorical Questions", "Direct Answer", "Logical Coherence", "Hedging Language", "Assertive Language", "Evasive Language"])
     # TODO: combine train and dev since we are doing 0 shot anyway
     data = pd.read_csv("data/train.tsv", delimiter="\t")
 
-    data = data[:5]
+    data = data[:1]
     target_labels_fine = []
     predicted_labels_fine = []
     target_labels_coarse = []
@@ -70,7 +88,6 @@ if __name__ == '__main__':
             question = example["q_text"]
             answer = example["r_text"]
             labels = example["gold_labels_binary"]
-
             
             messages=[
                 {"role": "system", "content": system_level_prompt},
@@ -82,40 +99,35 @@ if __name__ == '__main__':
             temperature=0
             )
             response = completion.choices[0].message.content
-            intents, intent_explanations = parse_response(response)
-
-            predicted_labels = create_predicted_label_leading_q(intents)
+            features = parse_response(response)
+            
+            
+            # predicted_labels = create_predicted_label_leading_q(intents)
             labels = int_to_str_label(labels)
 
-            df= df.append({
-                "Index": example["qa_index_digits"],
-                "Question": question,
-                "Response": answer,
-                "Labels":labels, 
-                "Predicted_Labels": predicted_labels,
-                "Predicted_Intent":intents, 
-                "Predicted_Intent_Explanation":intent_explanations
-            }, ignore_index=True)
+       
+            new_row = {
+                "Index": example["qa_index_digits"], 
+                "Question": question, 
+                "Response": answer, 
+                "Labels": labels, 
+                "Features": features
+            }
+            for feature, value in features.items():
+                print(feature, value)
+                new_row[feature] = value
 
-            target_labels_fine.append(labels)
-            predicted_labels_fine.append(predicted_labels)
+           
+            df = df.append(new_row, ignore_index=True)
 
-            target_labels_coarse.append(create_acts_labels(labels))
-            predicted_labels_coarse.append(create_acts_labels(predicted_labels))
+            # target_labels_fine.append(labels)
+            # predicted_labels_fine.append(predicted_labels)
+
+            # target_labels_coarse.append(create_acts_labels(labels))
+            # predicted_labels_coarse.append(create_acts_labels(predicted_labels))
         except Exception as e:
-            print("LLM probably hallucinated.. ", e)
+            print("Error ", e)
             print(response)
             continue
 
-    df.to_csv("predictions/llm_predictions_leading_questions.csv")
-
-    metrics_fine = get_metrics(target_labels_fine, predicted_labels_fine)
-    with open('metrics/leading_questions_metrics_fine.json', 'w') as file:
-        json.dump(metrics_fine, file, indent=4)
-
-    metrics_coarse = get_metrics(target_labels_coarse, predicted_labels_coarse)
-    with open('metrics/leading_questions_metrics_coarse.json', 'w') as file:
-        json.dump(metrics_coarse, file, indent=4)
-
-
-
+    df.to_csv("predictions/llm_features.csv")
