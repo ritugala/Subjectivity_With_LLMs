@@ -41,8 +41,7 @@ The range of acts and their explanations are:
 
 if __name__ == '__main__':
     df = pd.DataFrame(columns=["Index","Question", "Response", "Labels", "Predicted_Labels", "Predicted_Intent", "Predicted_Intent_Explanation"])
-    # TODO: combine train and dev since we are doing 0 shot anyway
-    data = pd.read_csv("data/train.tsv", delimiter="\t")
+    data = pd.read_csv("data/dev.tsv", delimiter="\t")
 
     data = data[:100]
     target_labels_fine = []
