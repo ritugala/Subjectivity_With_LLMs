@@ -7,7 +7,7 @@ def create_predicted_labels(predicted_intents, is_hier=True):
         mapping = {'direct_answer':0, 'over_answer':1, 'shift_dodge':2, 'shift_correct':3, 'cant_answer_lying':4, 'cant_answer_sincere':5}
     predicted_labels = ['0']*6
     for predicted_intent in predicted_intents:
-        predicted_labels[mapping[predicted_intent]] = '1'
+        predicted_labels[mapping[predicted_intent.lower()]] = '1'
     return ''.join(predicted_labels)
 
 def create_predicted_label_leading_q(blah:dict):
