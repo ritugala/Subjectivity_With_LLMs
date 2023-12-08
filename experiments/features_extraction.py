@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # TODO: combine train and dev since we are doing 0 shot anyway
     data = pd.read_csv("data/train.tsv", delimiter="\t")
 
-    data = data[:1]
+
     target_labels_fine = []
     predicted_labels_fine = []
     target_labels_coarse = []
