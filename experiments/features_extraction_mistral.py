@@ -75,11 +75,11 @@ def parse_response(response):
     return features
 
 if __name__ == '__main__':
-    df = pd.DataFrame(columns=["Index", "Question", "Response", "Labels", "Predicted_Labels", "Features", "Filler Words", "Stuttering", "Concise", "Repetition", "Rambling", "External References", "Complicated Terms", "Sarcasm", "Rhetorical Questions", "Direct Answer", "Logical Coherence", "Hedging Language", "Assertive Language", "Evasive Language"])
+    df = pd.DataFrame(columns=["Index", "Question", "Response", "Labels", "Filler Words", "Stuttering", "Concise", "Repetition", "Rambling", "External References", "Complicated Terms", "Sarcasm", "Rhetorical Questions", "Direct Answer", "Logical Coherence", "Hedging Language", "Assertive Language", "Evasive Language"])
     # TODO: combine train and dev since we are doing 0 shot anyway
     data = pd.read_csv("data/train.tsv", delimiter="\t")
 
-    # data = data[:1]
+    data = data[:2]
     target_labels_fine = []
     predicted_labels_fine = []
     target_labels_coarse = []
@@ -120,34 +120,29 @@ if __name__ == '__main__':
             labels = int_to_str_label(labels)
 
        
-            new_row = pd.DataFrame({
+            new_row = {
                 "Index": example["qa_index_digits"], 
                 "Question": question, 
                 "Response": answer, 
-                "Labels": labels, 
-                "Features": features
-            })
+                "Labels": labels
+            }
             for feature, value in features.items():
-                print(feature, value)
+                # print(feature, value)
                 new_row[feature] = value
-
+            new_row_df = pd.DataFrame([new_row])
+            print(new_row_df)
+            # print(new_row_df.shape)
+            df = pd.concat([df, new_row_df], ignore_index=True)
            
-            # df = df.append(new_row, ignore_index=True)
-            df = pd.concat([df, new_row], ignore_index=True)
 
             print("Success!")
             results['success'] += 1
 
-            # target_labels_fine.append(labels)
-            # predicted_labels_fine.append(predicted_labels)
-
-            # target_labels_coarse.append(create_acts_labels(labels))
-            # predicted_labels_coarse.append(create_acts_labels(predicted_labels))
         except Exception as e:
             print("Error ", e)
             print(completions_response)
             results['fail'] += 1
             continue
 
-    df.to_csv("predictions/mistral_llm_features.csv")
+    # df.to_csv("predictions/mistral_llm_features.csv")
     print(results)

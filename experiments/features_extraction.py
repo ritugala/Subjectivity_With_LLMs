@@ -5,10 +5,10 @@ import json
 import sys
 import ast
 # LOL sorry i dont know how to fix this better
-sys.path.append('/Users/meghanaarajeev/Documents/ANLP/Subjectivity_With_LLMs')
+sys.path.append('/home/ubuntu/Subjectivity_With_LLMs')
 from utils_fns import create_predicted_label_leading_q, int_to_str_label, create_acts_labels, get_metrics
 import numpy as np
-client = OpenAI(api_key = "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")
+client = OpenAI()
 
 #@meghana: This is code from leading_questions.py I dont personally think you should mimic the "consider all interpreations part", considering we want these to be as objective as possible (since these features are not meant to be subjective). However use your best judgement. Hehe. 
 system_level_prompt = """You will be given question-response pairs from witness testimonials in U.S. congressional hearings. Your job is to pick up on cues of the response which will later be used for determining intent of the response. To aid with this, you will be asked a list of questions. Please answer this as yes/no. """
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     df = pd.DataFrame(columns=["Index", "Question", "Response", "Labels", "Filler Words", "Stuttering", "Concise", "Repetition", "Rambling", "External References", "Complicated Terms", "Sarcasm", "Rhetorical Questions", "Direct Answer", "Logical Coherence", "Hedging Language", "Assertive Language", "Evasive Language"])
     # TODO: combine train and dev since we are doing 0 shot anyway
     data = pd.read_csv("data/train.tsv", delimiter="\t")
-    data = data[:5]
+    data = data[:2]
 
     target_labels_fine = []
     predicted_labels_fine = []
@@ -113,18 +113,14 @@ if __name__ == '__main__':
             for feature, value in features.items():
                 # print(feature, value)
                 new_row[feature] = value
-            # print(new_row)
-           
-            df = df.append(new_row, ignore_index=True)
 
-            # target_labels_fine.append(labels)
-            # predicted_labels_fine.append(predicted_labels)
-
-            # target_labels_coarse.append(create_acts_labels(labels))
-            # predicted_labels_coarse.append(create_acts_labels(predicted_labels))
+            new_row_df = pd.DataFrame([new_row])
+            # print(new_row_df.shape)
+            df = pd.concat([df, new_row_df], ignore_index=True)
+            
         except Exception as e:
             print("Error ", e)
             print(response)
             continue
-    print(df)
+    print(df["Response"])
     df.to_csv("predictions/llm_features.csv")
