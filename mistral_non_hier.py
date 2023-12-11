@@ -45,63 +45,70 @@ if __name__ == '__main__':
     predicted_labels_fine = []
     target_labels_coarse = []
     predicted_labels_coarse = []
+    num_retries = 3
     for idx,example in data.iterrows():
-        try:
-            print("Currently processing.. ", idx)
-            question = example["q_text_last_question"]
-            response = example["r_text"]
-            labels = example["gold_labels_binary"]
-            sentiments = example["gold_sentiments"]
-            num_annotators = len(sentiments)
-            messages=[
-                {"role": "user", "content": system_level_prompt},
-                {"role": "assistant", "content": user_level_act_prompt.format(question=question, response=response, num_annotators=num_annotators, sentiments=sentiments )}
-            ]
-            # completion = client.chat.completions.create(
-            # model="gpt-3.5-turbo",
-            # messages=messages, 
-            # temperature=0
-            # )
+        curr_attempts = 0
+        while curr_attempts < num_retries:
+            try:
 
-            completion = requests.post("http://0.0.0.0:8000/v1/chat/completions",
-                json = {
-                    "model": "mistralai/Mistral-7B-Instruct-v0.1",
-                    "messages": messages
-                }
-            )
+                print("Currently processing.. ", idx)
+                question = example["q_text_last_question"]
+                response = example["r_text"]
+                labels = example["gold_labels_binary"]
+                sentiments = example["gold_sentiments"]
+                num_annotators = len(sentiments)
+                messages=[
+                    {"role": "user", "content": system_level_prompt},
+                    {"role": "assistant", "content": user_level_act_prompt.format(question=question, response=response, num_annotators=num_annotators, sentiments=sentiments )}
+                ]
+                # completion = client.chat.completions.create(
+                # model="gpt-3.5-turbo",
+                # messages=messages, 
+                # temperature=0
+                # )
 
-
-            completions_response = completion.json()['choices'][0]['message']['content'].split('\n')
-            completions_response = completions_response[0] if completions_response[0].strip() != "" else completions_response[1]
-            
-            intents, intent_explanations = eval(completions_response)
-
-            predicted_labels = create_predicted_labels(intents, is_hier=False)
-            labels = int_to_str_label(labels)
-
-            new_row = pd.DataFrame({
-                "Index": example["qa_index_digits"],
-                "Question": question,
-                "Response": example["r_text"],
-                "Labels":labels, 
-                "Predicted_Labels": predicted_labels,
-                "Predicted_Intent":intents, 
-                "Predicted_Intent_Explanation":intent_explanations
-            })
-
-            df = pd.concat([df, new_row], ignore_index=True)
+                completion = requests.post("http://0.0.0.0:8000/v1/chat/completions",
+                    json = {
+                        "model": "mistralai/Mistral-7B-Instruct-v0.1",
+                        "messages": messages
+                    }
+                )
 
 
-            target_labels_fine.append(labels)
-            predicted_labels_fine.append(predicted_labels)
+                completions_response = completion.json()['choices'][0]['message']['content'].split('\n')
+                completions_response = completions_response[0] if completions_response[0].strip() != "" else completions_response[1]
+                
+                intents, intent_explanations = eval(completions_response)
 
-            target_labels_coarse.append(create_acts_labels(labels))
-            predicted_labels_coarse.append(create_acts_labels(predicted_labels))
-        except Exception as e:
-            # print("LLM probably hallucinated.. ", e)
-            print("Error: ", e)
-            print("Response: ", completions_response)
-            continue
+                predicted_labels = create_predicted_labels(intents, is_hier=False)
+                labels = int_to_str_label(labels)
+
+                new_row = pd.DataFrame({
+                    "Index": example["qa_index_digits"],
+                    "Question": question,
+                    "Response": example["r_text"],
+                    "Labels":labels, 
+                    "Predicted_Labels": predicted_labels,
+                    "Predicted_Intent":intents, 
+                    "Predicted_Intent_Explanation":intent_explanations
+                })
+                breakpoint()
+
+                df = pd.concat([df, new_row], ignore_index=True)
+
+
+                target_labels_fine.append(labels)
+                predicted_labels_fine.append(predicted_labels)
+
+                target_labels_coarse.append(create_acts_labels(labels))
+                predicted_labels_coarse.append(create_acts_labels(predicted_labels))
+                break
+            except Exception as e:
+                # print("LLM probably hallucinated.. ", e)
+                curr_attempts+=1
+                print("Error: ", e)
+                print("Response: ", completions_response)
+                continue
 
     df.to_csv("predictions/mistral_predictions_non_hier.csv")
 
