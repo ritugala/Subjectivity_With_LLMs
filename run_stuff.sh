@@ -1,0 +1,2 @@
+python experiments/features_extraction_mistral.py
+python experiments/feature_extraction_mistral_test.py

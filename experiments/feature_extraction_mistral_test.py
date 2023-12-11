@@ -78,7 +78,7 @@ def parse_response(response):
 if __name__ == '__main__':
     df = pd.DataFrame(columns=["Index", "Question", "Response", "Labels", "Filler Words", "Stuttering", "Concise", "Repetition", "Rambling", "External References", "Complicated Terms", "Sarcasm", "Rhetorical Questions", "Logical Coherence", "Hedging Language", "Assertive Language", "Explanation"])
     # TODO: combine train and dev since we are doing 0 shot anyway
-    data = pd.read_csv("data/dev.tsv", delimiter="\t")
+    data = pd.read_csv("data/test.tsv", delimiter="\t")
 
     target_labels_fine = []
     predicted_labels_fine = []
@@ -146,5 +146,5 @@ if __name__ == '__main__':
             results['fail'] += 1
             print("Result still failed..")
 
-        df.to_csv("predictions/mistral_llm_features_dev_v2.csv")
+        df.to_csv("predictions/mistral_llm_features_test_v2.csv")
     print(results)
