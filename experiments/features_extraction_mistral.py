@@ -36,30 +36,14 @@ Questions:
 7. Does the text use complicated terms/jargon?
 8. Does the text use sarcasm? 
 9. Does the text contain rhetorical questions?
-10. Does the response directly address and answer the question asked, or does it divert from the topic?
-11. Is the response logically structured and coherent without contradictions?
-12. Does the response use hedging language(e.g. 'it seems', 'possibly', 'might be', 'could be', or similar expressions that indicate uncertainty or non-commitment.)?
-13. Does the prompt use assertive language like (but not limited to) "definitely," "certainly," or "absolutely" to express confidence or conviction?
-14. Does the prompt use evasive language with terms like (but not limited to) to the best of my knowledge" or "as far as I am aware" to avoid direct commitment?
+10. Is the response logically structured and coherent without contradictions?
+11. Does the response use hedging language(e.g. 'it seems', 'possibly', 'might be', 'could be', or similar expressions that indicate uncertainty or non-commitment.)?
+12. Does the prompt use assertive language like (but not limited to) "definitely," "certainly," or "absolutely" to express confidence or conviction?
+
  
 
-The answers to the questions should be in the following JSON dict format with yes or no for each question. eg output: 
-{
- "Filler Words": "yes",
- "Stuttering": "no",
- "Concise": "yes",
- "Repetition": "no",
- "Rambling": "no",
- "External References": "yes",
- "Complicated Terms": "yes",
- "Sarcasm": "yes",
- "Rhetorical Questions": "no",
- "Direct Answer": "yes",
- "Logical Coherence": "no",
- "Hedging Language": "no",
- "Assertive Language": "no",
- "Evasive Language": "yes"
-}.
+The answers to the questions should be in the following JSON dict format with yes or no for each question, with the following keys: 
+ ["Filler Words", "Stuttering",  "Concise",  "Repetition",  "Rambling",  "External References", "Complicated Terms", "Sarcasm", "Rhetorical Questions", "Logical Coherence","Hedging Language","Assertive Language"].
 The explanations and the answer_json is:
 """
 
@@ -81,10 +65,9 @@ def parse_response(response):
 if __name__ == '__main__':
     df = pd.DataFrame(columns=["Index", "Question", "Response", "Labels", "Filler Words", "Stuttering", "Concise", "Repetition", "Rambling", "External References", "Complicated Terms", "Sarcasm", "Rhetorical Questions", "Logical Coherence", "Hedging Language", "Assertive Language", "Explanation"])
     # TODO: combine train and dev since we are doing 0 shot anyway
-    data_dev = pd.read_csv("data/dev.tsv", delimiter="\t")
-    data_train = pd.read_csv("data/train.tsv", delimiter="\t")
-    data = pd.concat([data_dev, data_train], ignore_index=True)
-
+    data = pd.read_csv("data/dev.tsv", delimiter="\t")
+    print("hiii")
+    breakpoint()
     target_labels_fine = []
     predicted_labels_fine = []
     target_labels_coarse = []
@@ -93,7 +76,6 @@ if __name__ == '__main__':
     results = {'success': 0, 'fail': 0}
     num_retries = 3
     for idx,example in data.iterrows():
-        print("Currently processing.. ", idx, " = ", example["qa_index_digits"])
         curr_attempts = 0
         while curr_attempts < num_retries:
             try:
@@ -107,9 +89,8 @@ if __name__ == '__main__':
                     {"role": "assistant", "content": build_input(question, answer)}
                 ]
 
-                print(' '.join([m['content'] for m in messages]))
-
-                # breakpoint()
+                print("".join([m["content"] for m in messages]))
+                breakpoint()
 
                 completion = requests.post("http://0.0.0.0:8000/v1/chat/completions",
                     json = {
@@ -121,9 +102,6 @@ if __name__ == '__main__':
                 )
 
                 completions_response = completion.json()['choices'][0]['message']['content']
-
-                breakpoint()
-
                 features, expln = parse_response(completions_response)
                 
                 
@@ -143,8 +121,6 @@ if __name__ == '__main__':
                     new_row[feature] = value
                 new_row_df = pd.DataFrame([new_row])
 
-                print(new_row["Index"])
-
                 df = pd.concat([df, new_row_df], ignore_index=True)
             
 
@@ -161,5 +137,5 @@ if __name__ == '__main__':
             results['fail'] += 1
             print("Result still failed..")
 
-        df.to_csv("predictions/mistral_llm_features_dev_v3.csv")
+        df.to_csv("predictions/mistral_llm_features_dev_v2.csv")
     print(results)
